@@ -81,6 +81,10 @@ class PagSeguroComponent extends Object {
 	function init($data) {
 		if(is_array($data)) {
 
+			// Set the token
+			if(isset($data['pagseguro']['token']) && !empty($data['pagseguro']['token']))
+				$this->token = $data['pagseguro']['token'];
+
 			// Set the correct value of extra
 			if(isset($data['pagseguro']['extra']) && !empty($data['pagseguro']['extra']))
 				$data['pagseguro']['extra'] = $this->__formatCurrency($data['pagseguro']['extra']);

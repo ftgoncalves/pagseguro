@@ -51,6 +51,8 @@ class PagSeguroHelper extends AppHelper {
 
 		if($this->settings['src'] != false)
 			$src = $this->settings['src'].$this->__getTheme($theme);
+		else if ($theme == false)
+			$src = $this->settings['src'];
 		else
 			$src = null;
 		unset($this->settings['src']);
