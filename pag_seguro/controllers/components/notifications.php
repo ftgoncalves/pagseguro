@@ -1,17 +1,18 @@
 <?php
-/* SVN FILE: $Id:$ */
 /**
- * BrainStern Soluções Ltda - http://www.brainstern.com/
- * E-mail: contato@brainstern.com
+ * Plugin de integração com a API do PagSeguro e CakePHP.
  *
- * @created: 01/02/2011
- * @version: $Rev:$
- * @author: $Author:$
- * @LastChangedDate: $Date:$
- * @link: $HeadURL:$
+ * PHP versions 5+
+ * Copyright 2010-2011, Felipe Theodoro Gonçalves, (http://ftgoncalves.com.br)
+ *
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author	 	  Felipe Theodoro Gonçalves
+ * @link          https://github.com/ftgoncalves/pagseguro/
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @version		  1.0
  */
-?>
-<?php
 class NotificationsComponent extends Object {
 
 	public $component = array('RequestHandler');

@@ -1,6 +1,4 @@
-*** Este plugin esta sendo totalmente reformulado ***
-
- ____    ___                                   
+____    ___                                   
 /\  _`\ /\_ \                    __            
 \ \ \L\ \//\ \    __  __     __ /\_\    ___    
  \ \ ,__/ \ \ \  /\ \/\ \  /'_ `\/\ \ /' _ `\  
@@ -19,13 +17,22 @@
                    /\____/                /\____/                   
                    \_/__/                 \_/__/                    
 
-Autor Felipe Theodoro Gonçalves
-blog.ftgoncalves.com
+-----------------------------
+Este plugin foi desenvolvido com a nova API de integração do PagSeguro
+Utilizando a plataforma CakePHP 1.3.*
+PHP 5.3.*
+-----------------------------
 
-Seu Funcionamento:
-blog.ftgoncalves.com
+Autor Felipe Theodoro Gonçalves
+blog.ftgoncalves.com.br
 
 Documentação:
  - http://www.itweb.com.br/blogs/blog.asp?cod=162
-ou
- - http://blog.ftgoncalves.com/2010/08/plugin-pagseguro-para-cakephp-2/
+ 
+ Todos direitos reservados:
+  - CakePHP
+  - PagSeguro
+  
+Este plugin é de intuito a auxiliar o desenvolvimento para utilização dos serviços do PagSeguro com o
+framework de desenvolvimento CakePHP. Sendo de total responsabilidade o desenvolvedor que optar por utiliza-lo.
+Sendo seu(s) idealizador isento de qualquer mau uso desta ferramenta. 

@@ -1,15 +1,17 @@
 <?php
 /**
- * @author: Felipe Theodoro Gonçalves blog.ftgoncalves.com
- * @created: 27/08/2010
- * @version: 0.2
- */
-/**
- * Component para tratamento dos dados para envio ao PagSeguro
- * Este componente foi devenvolvido para trabalhar com o Cake 1.3
+ * Plugin de integração com a API do PagSeguro e CakePHP.
  *
- * @author Felipe Theodoro Gonçalves
+ * PHP versions 5+
+ * Copyright 2010-2011, Felipe Theodoro Gonçalves, (http://ftgoncalves.com.br)
  *
+ * Licensed under The MIT License
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @author	 	  Felipe Theodoro Gonçalves
+ * @link          https://github.com/ftgoncalves/pagseguro/
+ * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @version		  1.0
  */
 class CheckoutComponent extends Object {
 
