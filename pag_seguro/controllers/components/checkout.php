@@ -52,7 +52,7 @@ class CheckoutComponent extends Object {
 	 *
 	 * Methodo para setar as configurações defaults do pagseguro
 	 */
-	public function initialize(&$controller, $settings = array()) {
+	public function startup(&$controller) {
 		$this->controller = $controller;
 
 		if ((Configure::read('pag_seguro') != false || Configure::read('pag_seguro') != null) && is_array(Configure::read('pag_seguro'))) {
@@ -118,12 +118,27 @@ class CheckoutComponent extends Object {
 
 	private function __configValidates() {
 		if (!isset($this->__config['email']))
-			trigger_error('Não foi informado o email do vendedor.', E_USER_ERROR);
+			trigger_error('E-mail the seller not found', E_USER_ERROR);
 		if (!isset($this->__config['token']))
-			trigger_error('Não foi informado o token.', E_USER_ERROR);
+			trigger_error('Token not found', E_USER_ERROR);
 		if (!isset($this->__config['currency']))
-			trigger_error('Não foi informado o currency.', E_USER_ERROR);
+			trigger_error('Currency of reference not found', E_USER_ERROR);
 	}
 
-	private function __dataValidates() {}
+	private function __dataValidates() {
+		if (empty($this->__data) && !is_array($this->__data))
+			trigger_error('Purchase data empty', E_USER_ERROR);
+
+		foreach ($this->__data as $key => $value) {
+			if (preg_match('/^([a-zA-Z]+)[0-9]{1,}$/', $key)) {
+				if (empty($value)) {
+					trigger_error('Empty value for the attribute: "' . $key . '"', E_USER_ERROR);
+					break;
+				}
+			} else {
+				trigger_error('This attribute was not identified: "' . $key . '"', E_USER_ERROR);
+				break;
+			}
+		}
+	}
 }
