@@ -15,16 +15,46 @@
  */
 class CheckoutComponent extends Object {
 
+	/**
+	 *
+	 * Instancia do Controller
+	 * @var Object
+	 */
 	public $controller = null;
 
+	/**
+	 *
+	 * Dominio do webserver do PagSeguro
+	 * @var String
+	 */
 	private $__URI = 'ws.pagseguro.uol.com.br';
 
+	/**
+	 *
+	 * Endereço do ws PagSeguro v2
+	 * @var String
+	 */
 	private $__path = '/v2/checkout/';
 
+	/**
+	 *
+	 * Charset
+	 * @var String
+	 */
 	public $charset = 'UTF-8';
 
+	/**
+	 *
+	 * Timeout do post
+	 * @var int
+	 */
 	public $timeout = 20;
 
+	/**
+	 *
+	 * Endereço para redirecionamento para o checkout do PagSeguro
+	 * @var String
+	 */
 	private $__redirect = 'https://pagseguro.uol.com.br/v2/checkout/payment.html?code=';
 
 	/**
@@ -53,6 +83,7 @@ class CheckoutComponent extends Object {
 	/**
 	 *
 	 * Methodo para setar as configurações defaults do pagseguro
+	 * @param Object $controller
 	 */
 	public function startup(&$controller) {
 		$this->controller = $controller;
@@ -70,20 +101,33 @@ class CheckoutComponent extends Object {
 	 */
 	public function config($config) {
 		$this->__config = array_merge($this->__config, $config);
-
 		$this->__configValidates();
 	}
 
+	/**
+	 *
+	 * Seta as informações de cobrança e id da compra
+	 * @param array $data
+	 */
 	public function setShipping($data) {
 		$this->__shipping = $data;
 	}
 
+	/**
+	 *
+	 * Seta os itens da venda
+	 * @param array $data
+	 */
 	public function set($data) {
 		$this->__data = $data;
-
 		$this->__dataValidates();
 	}
 
+	/**
+	 *
+	 * Finaliza a compra.
+	 * Recebe o codigo para redirecionamento ou erro.
+	 */
 	public function finalize() {
 		App::import('Core', 'HttpSocket');
 		$HttpSocket = new HttpSocket(array(
@@ -105,19 +149,26 @@ class CheckoutComponent extends Object {
 		return $this->__response($return);
 	}
 
+	/**
+	 *
+	 * Recebe o Xml com os dados redirecionamento ou erros. Iniciando o redirecionamento
+	 * @param String $res
+	 * @return array
+	 */
 	private function __response($res) {
 		App::import('Core', 'Xml');
 		$xml = new xml($res);
 		$response = $xml->toArray();
-		if (!isset($response['Errors'])) {
-			if (isset($response['Checkout'])) {
-				$this->controller->redirect($this->__redirect . $response['Checkout']['code'], null, false);
-				return $response['Checkout']['code'];
-			}
-		} else
-			return $response;
+
+		if (isset($response['Checkout']))
+			$this->controller->redirect($this->__redirect . $response['Checkout']['code'], null, false);
+		return $response;
 	}
 
+	/**
+	 *
+	 * Valida os dados de configuração caso falhe dispara erro de PHP
+	 */
 	private function __configValidates() {
 		if (!isset($this->__config['email']))
 			trigger_error('E-mail the seller not found', E_USER_ERROR);
@@ -127,6 +178,10 @@ class CheckoutComponent extends Object {
 			trigger_error('Currency of reference not found', E_USER_ERROR);
 	}
 
+	/**
+	 *
+	 * Valida os itens da compra caso falhe dispara erro de PHP
+	 */
 	private function __dataValidates() {
 		if (empty($this->__data) && !is_array($this->__data))
 			trigger_error('Purchase data empty', E_USER_ERROR);
