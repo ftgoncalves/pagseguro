@@ -115,7 +115,7 @@ class CheckoutComponent extends Object {
 				return $response['Checkout']['code'];
 			}
 		} else
-			return $response['Errors'];
+			return $response;
 	}
 
 	private function __configValidates() {

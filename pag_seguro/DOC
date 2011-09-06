@@ -18,6 +18,11 @@ O plugin disponibiliza 2 components o Checkout e o Notifications.
 
 Este compoment viabiliza as solicitações de transação com o PagSeguro.
 
+Carregando o component:
+	
+	public $components = array('PagSeguro.Checkout');
+
+
 A primeira coisa a ser feito é setar no core as configurações de:
 email, tokem
 Este dois dados são obrigatórios caso estes não sejam informados será disparado um fatal error.
@@ -30,15 +35,18 @@ Exemplo:
 
 O Carregamento destas informações é feita depois do beforeFilter do controller
 podendo assim ser modificado em tempo de execução no methodo beforeFilter, setando exatamente o array acima.
-	exemplo:
+	
+	Exemplo:
 		$this->Checkout->config(array(
 			'email' => 'exemplo@exemplo.com.br', // Email da conta do vendedor
 			'token' => '3893im3u93i3m9iu39i39iu' // Token gerado pelo PagSeguro
 		));
 
-Methodos:
-Para setar as informações dos produtos é necessário itilizar exatamente estes indeces e seguir o padrão do PagSeguro:
-$this->Checkout->set();
+METODOS:
+
+Para setar as informações dos produtos é necessário utilizar exatamente estes indeces e seguir o padrão
+do PagSeguro: $this->Checkout->set();
+
 Exemplo:
 	$this->Checkout->set(array(
 		'itemId1' => '30', // ID de identificação do produto
@@ -48,8 +56,9 @@ Exemplo:
 		'itemWeight1' => '1000' // Pesso do produto em gramas
 	));
 
-Reparem que este o indice do array é composto do nome seguido do numero
+Reparem que o índice do array é composto do nome seguido do número
 caso tenho n produtos é necessário acrescentar incrementos de 1:
+
 Exemplo:
 	$this->Checkout->set(array(
 		'itemId1' => '30',
@@ -64,9 +73,10 @@ Exemplo:
 		'itemWeight2' => '1200'
 	));
 
-O segundo methodo é o $this->Checkout->setShipping()
-este recebe um array obtendo as informações do comprador, endereço de cobrança e dados da venda.
-Obs: Seguindo o padrão de indice do PagSeguro:
+O segundo methodo é o $this->Checkout->setShipping();
+Este recebe um array obtendo as informações do comprador, endereço de cobrança e dados da venda.
+Obs: Seguindo o padrão de índice do PagSeguro:
+
 Exemplo:
 	$this->Checkout->setShipping(array(
 		'reference' => '10111', // ID da venda
@@ -84,19 +94,24 @@ Exemplo:
 		'shippingAddressCountry' => 'BRA' // Praticamente contante
 	));
 
-E em terceiro e ultimo $this->Checkout->finalize()
-Este methodo finaliza e gera a requisição POST para o servidor do PagSeguro.
+E em terceiro e último $this->Checkout->finalize();
+Este metodo finaliza e gera a requisição POST para o servidor do PagSeguro.
 Obs: O redirecionamento não finaliza a execução do script.
-O retorno em array deste methodo contem o retorno do PagSeguro.
-Contendo Errors ou Code de redirecionamento.
+O retorno em array deste metodo contém o retorno do PagSeguro.
+Com Errors ou Code de redirecionamento.
+Atenção: Caso aja algum erro, não será executado o redirecionamento para o PagSeguro, possibilitando
+o tratamento de erros.
 
 Complemento:
-É possivel aumentar o timeout da requicisão POST
-em nível de beforeFilter()
-sete:
-	$this->Checkout->timeout = 20 // 20 é o valor default
+ - Aumentar o timeout da requicisão POST em nível de beforeFilter();
+	Sete:
+		$this->Checkout->timeout = 20 // 20 é o valor default
+ - Mudar a codificação 'charset'
+ 	Sete:
+ 		$this->Checkout->charset = 'ISO-8859-1' // O valor default é UTF-8
 
-Exemplo basico:
+
+Exemplo básico:
 
 class PagesController extends AppController {
 
@@ -128,6 +143,15 @@ class PagesController extends AppController {
 			'shippingAddressState' => 'SP',
 			'shippingAddressCountry' => 'BRA'
 		));
-		$this->Checkout->finalize();
+		$resturn = $this->Checkout->finalize();
+		if (isset($resturn['Erros'])) {
+			// Tratamento dos erros
+		}
 	}
 }
+
+
+#############################
+#   NotificationsComponent  #
+#############################
+TODO: Não foi implementado
