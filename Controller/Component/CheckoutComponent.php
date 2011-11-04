@@ -14,6 +14,7 @@
  * @version		  1.0
  */
 App::uses('HttpSocket', 'Network/Http');
+App::uses('Xml', 'Utility');
 
 class CheckoutComponent extends Component {
 
@@ -132,9 +133,10 @@ class CheckoutComponent extends Component {
 	 */
 	public function set($data) {
 		$this->__data = $data;
+		
 		$this->__dataValidates();
 	}
-
+	
 	/**
 	 *
 	 * Finaliza a compra.
@@ -167,12 +169,10 @@ class CheckoutComponent extends Component {
 	 * @return array
 	 */
 	private function __response($res) {
-		App::import('Core', 'Xml');
-		$xml = new xml($res);
-		$response = $xml->toArray();
-
-		if (isset($response['Checkout'])) {
-			$this->Controller->redirect($this->__redirect . $response['Checkout']['code'], null, false);
+		$response = Xml::toArray(Xml::build($res['body']));
+		
+		if (isset($response['checkout'])) {
+			$this->Controller->redirect($this->__redirect . $response['checkout']['code']);
 		}
 		
 		return $response;
