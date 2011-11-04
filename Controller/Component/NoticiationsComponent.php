@@ -109,8 +109,7 @@ class NotificationsComponent extends Component {
 	 * @param string $response
 	 */
 	private function __status($response) {
-		$xml = new Xml($res);
-		return $xml->toArray();
+		return Xml::toArray(Xml::build($response['body']));
 	}
 
 	/**
