@@ -13,14 +13,16 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @version		  1.0
  */
-class CheckoutComponent extends Object {
+App::uses('HttpSocket', 'Network/Http');
+
+class CheckoutComponent extends Component {
 
 	/**
 	 *
 	 * Instancia do Controller
-	 * @var Object
+	 * @var Controller
 	 */
-	public $controller = null;
+	protected $Controller = null;
 
 	/**
 	 *
@@ -79,6 +81,16 @@ class CheckoutComponent extends Object {
 	 * @var array
 	 */
 	public $__data = array();
+	
+	/**
+	 * Construtor padrão
+	 *
+	 * @param ComponentCollection $collection
+	 * @param array $settings
+	 */
+	public function __construct(ComponentCollection $collection, $settings = array()) {
+		parent::__construct($collection, $settings);
+	}
 
 	/**
 	 *
@@ -86,10 +98,10 @@ class CheckoutComponent extends Object {
 	 * @param Object $controller
 	 */
 	public function startup(&$controller) {
-		$this->controller = $controller;
+		$this->Controller = $controller;
 
-		if ((Configure::read('pag_seguro') != false || Configure::read('pag_seguro') != null) && is_array(Configure::read('pag_seguro'))) {
-			$this->__config = array_merge($this->__config, Configure::read('pag_seguro'));
+		if ((Configure::read('PagSeguro') != false) && is_array(Configure::read('PagSeguro'))) {
+			$this->__config = array_merge($this->__config, Configure::read('PagSeguro'));
 			$this->__configValidates();
 		}
 	}
@@ -129,7 +141,6 @@ class CheckoutComponent extends Object {
 	 * Recebe o codigo para redirecionamento ou erro.
 	 */
 	public function finalize() {
-		App::import('Core', 'HttpSocket');
 		$HttpSocket = new HttpSocket(array(
 			'timeout' => $this->timeout
 		));
@@ -160,8 +171,10 @@ class CheckoutComponent extends Object {
 		$xml = new xml($res);
 		$response = $xml->toArray();
 
-		if (isset($response['Checkout']))
-			$this->controller->redirect($this->__redirect . $response['Checkout']['code'], null, false);
+		if (isset($response['Checkout'])) {
+			$this->Controller->redirect($this->__redirect . $response['Checkout']['code'], null, false);
+		}
+		
 		return $response;
 	}
 

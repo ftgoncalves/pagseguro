@@ -1,0 +1,54 @@
+@CHARSET "UTF-8";
+
+#flags span {
+    background: url("/pag_seguro/img/sprite_flags.gif") no-repeat scroll 0 0 transparent;
+    display: block;
+    float: left;
+    height: 20px;
+    margin-right: 6px;
+    text-indent: -9999px;
+    width: 42px;
+}
+#flags #flag_visa {
+    background-position: -44px 0;
+}
+#flags #flag_mastercard {
+    background-position: -89px 0;
+}
+#flags #flag_diners {
+    background-position: -133px 0;
+}
+#flags #flag_americanexpress {
+    background-position: -177px 0;
+}
+#flags #flag_hipercard {
+    background-position: -221px 0;
+}
+#flags #flag_aura {
+    background-position: -265px 0;
+}
+#flags #flag_elo {
+    background-position: -309px 0;
+}
+#flags #flag_oipaggo {
+    background-position: -355px 0;
+}
+#flags #flag_bradesco {
+    background-position: -400px 0;
+}
+#flags #flag_itau {
+    background-position: -445px 0;
+}
+#flags #flag_bb {
+    background-position: -490px 0;
+}
+#flags #flag_banrisul {
+    background-position: -534px 0;
+}
+#flags #flag_hsbc {
+    background-position: -579px 0;
+}
+#flags #flag_boleto {
+    background-position: -623px 0;
+    margin-right: 0;
+}

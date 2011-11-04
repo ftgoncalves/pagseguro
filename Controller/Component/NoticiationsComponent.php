@@ -13,25 +13,42 @@
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @version		  1.0
  */
-class NotificationsComponent extends Object {
 
-	public $component = array('RequestHandler');
+App::uses('HttpSocket', 'Network/Http');
+App::uses('Xml', 'Utility');
+
+class NotificationsComponent extends Component {
 
 	public $timeout = 20;
 
 	public $pgURI = 'https://ws.pagseguro.uol.com.br/v2/transactions/notifications/';
 
-	public $controller = null;
+	/**
+	 * 
+	 * 
+	 * @var Controller
+	 */
+	protected $Controller = null;
 
 	public $__config = array();
 
 	public $notificationCode = null;
+	
+	/**
+	 * Construtor padrão
+	 *
+	 * @param ComponentCollection $collection
+	 * @param array $settings
+	 */
+	public function __construct(ComponentCollection $collection, $settings = array()) {
+		parent::__construct($collection, $settings);
+	}
 
-	public function initialize(&$controller, $settings = array()) {
-		$this->controller = $controller;
+	public function initialize(&$controller) {
+		$this->Controller = $controller;
 
-		if ((Configure::read('pag_seguro') != false || Configure::read('pag_seguro') != null) && is_array(Configure::read('pag_seguro'))) {
-			$this->__config = array_merge($this->__config, Configure::read('pag_seguro'));
+		if (Configure::read('PagSeguro') != false && is_array(Configure::read('PagSeguro'))) {
+			$this->__config = array_merge($this->__config, Configure::read('PagSeguro'));
 			$this->__configValidates();
 		}
 	}
@@ -46,16 +63,21 @@ class NotificationsComponent extends Object {
 		$this->__configValidates();
 	}
 
+	/**
+	 * 
+	 */
 	public function isNotification() {
-		if ($this->RequestHandler->isPost()) {
-			if ($this->RequestHandler->getReferer())
+		if ($this->Controller->request->is('post')) {
+			if ($this->Controller->request->referer())
 				return true;
-			else
-				return false;
-		} else
-			return false;
+		}
+		
+		return false;
 	}
 
+	/**
+	 * 
+	 */
 	public function getNotification() {
 		if (
 			isset($_POST['notificationCode']) &&
@@ -70,22 +92,32 @@ class NotificationsComponent extends Object {
 			return null;
 	}
 
+	/**
+	 * 
+	 * @param string $code
+	 */
 	public function getStatus($code) {
-		App::import('Core', 'HttpSocket');
-		$HttpSocket = new HttpSocket(array(
-			'timeout' => $this->timeout
-		));
+		
+		$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
 
 		$response = $HttpSocket->get($this->pgURI . $code, "email={$__config['email']}&token={$__config['token']}");
 		return $this->__status($response);
 	}
 
+	/**
+	 * 
+	 * @param string $response
+	 */
 	private function __status($response) {
-		App::import('Core', 'Xml');
-		$xml = new xml($res);
+		$xml = new Xml($res);
 		return $xml->toArray();
 	}
 
+	/**
+	 * 
+	 * @param string $referer
+	 * @return boolean
+	 */
 	private function __refererValidate($referer) {
 		if (
 			$referer == 'http://pagseguro.uol.com.br/' ||
@@ -97,6 +129,9 @@ class NotificationsComponent extends Object {
 			return false;
 	}
 
+	/**
+	 * 
+	 */
 	private function __configValidates() {
 		if (!isset($this->__config['email']))
 			trigger_error('Não foi informado o email do vendedor.', E_USER_ERROR);
