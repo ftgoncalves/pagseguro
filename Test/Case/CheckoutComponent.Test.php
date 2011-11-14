@@ -10,29 +10,43 @@
  * @LastChangedDate: $Date:$
  * @link: $HeadURL:$
  */
-?>
-<?php
-App::import('Component', 'PagSeguro.Checkout');
+
+App::uses('Controller', 'Controller');
+App::uses('CheckoutComponent', 'PagSeguro/Component');
 class CheckoutTestCase extends CakeTestCase {
 
 	public $CheckoutComponentTest = null;
+	
+	public $Controller = null;
+	
+	public $Checkout = null;
 
-	function startCase() {
-		$this->CheckoutComponentTest = new CheckoutComponent();
-
-		$controller = new FakeCheckoutController();
-		$controller->Checkout = new $this->CheckoutComponentTest;
-
-		$this->CheckoutComponentTest->startup(&$controller);
+	/**
+	* setUp
+	*
+	* @retun void
+	* @access public
+	*/
+	public function setUp()
+	{
+		parent::setUp();
+	
+		Configure::write('Language.default', 'pt-br');
+		setlocale(LC_ALL, 'pt_BR.utf-8', 'pt_BR', 'pt-br', 'pt_BR.iso-8859-1');
+	
+		$this->Controller = new Controller(null);
+		
+		$this->Checkout = new CheckoutComponent($this->Controller->Components);
+		$this->Checkout->startup($this->Controller);
 	}
 
     function testConfig() {
-		$this->CheckoutComponentTest->config(array(
+		$this->Checkout->config(array(
 			'email' => 'email@email.com',
 			'token' => '3C2B7B8F25EB42648516DAF4BCF49953'
 		));
 
-		$this->assertEqual($this->CheckoutComponentTest->__config, array(
+		$this->assertEqual($this->Checkout->__config, array(
 			'email' => 'email@email.com',
 			'token' => '3C2B7B8F25EB42648516DAF4BCF49953',
 			'currency' => 'BRL'
@@ -40,26 +54,19 @@ class CheckoutTestCase extends CakeTestCase {
 	}
 
 	function testModConfig() {
-		$this->CheckoutComponentTest->__config = array(
+		$this->Checkout->__config = array(
 			'currency' => 'US'
 		);
 
-		$this->CheckoutComponentTest->config(array(
+		$this->Checkout->config(array(
 			'email' => 'email@email.com',
 			'token' => '3C2B7B8F25EB42648516DAF4BCF49953'
 		));
 
-		$this->assertEqual($this->CheckoutComponentTest->__config, array(
+		$this->assertEqual($this->Checkout->__config, array(
 			'email' => 'email@email.com',
 			'token' => '3C2B7B8F25EB42648516DAF4BCF49953',
 			'currency' => 'US'
 		), 'Modificação do currency');
 	}
-
-
-
-	function endCase() {
-		$this->CheckoutComponentTest = null;
-	}
 }
-class FakeCheckoutController {}
