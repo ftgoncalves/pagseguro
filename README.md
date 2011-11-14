@@ -2,7 +2,7 @@ Plugin de Integração PagSeguro e CakePHP
 ==========================
 
 Este plugin foi desenvolvido com a nova API de integração do PagSeguro
-Utilizando a plataforma CakePHP 1.3.*
+Utilizando a plataforma CakePHP 2.0.*
 PHP 5.3.*
 
 
