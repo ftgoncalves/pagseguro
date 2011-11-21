@@ -9,9 +9,10 @@
  * Redistributions of files must retain the above copyright notice.
  *
  * @author	 	  Felipe Theodoro Gonçalves
- * @link          https://github.com/ftgoncalves/pagseguro/
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
- * @version		  1.0
+ * @author       Cauan Cabral
+ * @link         https://github.com/ftgoncalves/pagseguro/
+ * @license      MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @version      2.0
  */
 
 App::uses('HttpSocket', 'Network/Http');
@@ -32,6 +33,12 @@ class NotificationsComponent extends Component {
 
 	public $__config = array();
 
+	/**
+	 * Código de 39 caracteres que identifica a notificação
+	 * recebida
+	 * 
+	 * @var type string
+	 */
 	public $notificationCode = null;
 	
 	/**
@@ -64,79 +71,61 @@ class NotificationsComponent extends Component {
 	}
 
 	/**
+	 * Validação de uma notificação recebida
 	 * 
-	 */
+	 * @param CakeRequest $request
+	 * @return bool Valido ou não
+	*/
 	public function isNotification() {
-		if ($this->Controller->request->is('post')) {
-			if ($this->Controller->request->referer())
-				return true;
-		}
-		
-		return false;
+		return (
+			$this->Controller->request->is('post') &&
+			strpos($request->referer(), 'pagseguro.uol.com.br') !== false &&
+			isset($request->data['notificationCode']) &&
+			isset($request->data['notificationType']) &&
+			strlen($request->data['notificationCode']) == 39 &&
+			$request->data['notificationType'] == 'transaction'
+		);
 	}
 
 	/**
+	 * Valida a notificação recebida e requisita da API do PagSeguro a situação de um pagamento,
+	 * converte o retorno de XML para Array e então o retorna.
 	 * 
+	 * @return mixed array com dos dados da notificação em caso de sucesso, null em caso de falha
 	 */
 	public function getNotification() {
-		if (
-			isset($_POST['notificationCode']) &&
-			!empty($_POST['notificationCode']) &&
-			isset($_POST['notificationType']) &&
-			!empty($_POST['notificationType']) &&
-			$_POST['notificationType'] == 'transaction'
-		) {
-			$this->notificationCode = $_POST['notificationCode'];
-			return $this->getStatus($_POST['notificationCode']);
+		if($this->isNotification($this->Controller->request))
+		{
+			$this->notificationCode = $this->Controller->request->data['notificationCode'];
+			
+			$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
+
+			$response = $HttpSocket->get($this->pgURI . $this->notificationCode, "email={$__config['email']}&token={$__config['token']}");
+		
+			return Xml::toArray(Xml::build($response['body']));
+			
 		} else
 			return null;
 	}
 
 	/**
+	 * Valida as configurações, disparando um erro fatal quando
+	 * forem inválidas.
 	 * 
-	 * @param string $code
-	 */
-	public function getStatus($code) {
-		
-		$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
-
-		$response = $HttpSocket->get($this->pgURI . $code, "email={$__config['email']}&token={$__config['token']}");
-		return $this->__status($response);
-	}
-
-	/**
+	 * @todo Substituir trigger_error por Exceções
 	 * 
-	 * @param string $response
-	 */
-	private function __status($response) {
-		return Xml::toArray(Xml::build($response['body']));
-	}
-
-	/**
-	 * 
-	 * @param string $referer
-	 * @return boolean
-	 */
-	private function __refererValidate($referer) {
-		if (
-			$referer == 'http://pagseguro.uol.com.br/' ||
-			$referer == 'http://pagseguro.uol.com.br' ||
-			$referer == 'pagseguro.uol.com.br'
-		)
-			return true;
-		else
-			return false;
-	}
-
-	/**
-	 * 
+	 * @return void
 	 */
 	private function __configValidates() {
 		if (!isset($this->__config['email']))
 			trigger_error('Não foi informado o email do vendedor.', E_USER_ERROR);
 		if (!isset($this->__config['token']))
 			trigger_error('Não foi informado o token.', E_USER_ERROR);
-		if (!isset($this->__config['currency']))
-			trigger_error('Não foi informado o currency.', E_USER_ERROR);
+		
+		// Validação de acordo com API 2.0 do PagSeguro
+		if(strlen($this->__config['email']) > 60)
+			trigger_error('Email do vendedor extrapola limite de 60 caracteres da API.', E_USER_ERROR);
+		if(strlen($this->__config['token']) > 32)
+			trigger_error('Token extrapola limite de 32 caracteres da API.', E_USER_ERROR);
 	}
 }

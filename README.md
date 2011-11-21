@@ -12,6 +12,12 @@ Autor
 Autor Felipe Theodoro Gonçalves
 blog.ftgoncalves.com.br
 
+Colaboradores
+-------------
+
+Cauan Cabral
+cauancabral.net
+
 Feedback
 --------
 

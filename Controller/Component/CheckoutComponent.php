@@ -8,10 +8,11 @@
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
  *
- * @author	 	  Felipe Theodoro Gonçalves
- * @link          https://github.com/ftgoncalves/pagseguro/
- * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
- * @version		  1.0
+ * @author      Felipe Theodoro Gonçalves
+ * @author      Cauan Cabral
+ * @link        https://github.com/ftgoncalves/pagseguro/
+ * @license     MIT License (http://www.opensource.org/licenses/mit-license.php)
+ * @version     2.0
  */
 App::uses('HttpSocket', 'Network/Http');
 App::uses('Xml', 'Utility');
