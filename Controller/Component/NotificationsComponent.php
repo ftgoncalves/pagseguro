@@ -52,7 +52,7 @@ class NotificationsComponent extends Component {
 	}
 
 	public function initialize(&$controller) {
-		$this->Controller = $controller;
+		$this->Controller =& $controller;
 
 		if (Configure::read('PagSeguro') != false && is_array(Configure::read('PagSeguro'))) {
 			$this->__config = array_merge($this->__config, Configure::read('PagSeguro'));

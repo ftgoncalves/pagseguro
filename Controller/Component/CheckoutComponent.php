@@ -100,7 +100,7 @@ class CheckoutComponent extends Component {
 	 * @param Object $controller
 	 */
 	public function startup(&$controller) {
-		$this->Controller = $controller;
+		$this->Controller =& $controller;
 
 		if ((Configure::read('PagSeguro') != false) && is_array(Configure::read('PagSeguro'))) {
 			$this->__config = array_merge($this->__config, Configure::read('PagSeguro'));
