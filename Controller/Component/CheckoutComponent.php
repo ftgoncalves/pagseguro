@@ -143,7 +143,7 @@ class CheckoutComponent extends Component {
 	 * Finaliza a compra.
 	 * Recebe o codigo para redirecionamento ou erro.
 	 */
-	public function finalize() {
+	public function finalize($autoRedirect = false) {
 		$HttpSocket = new HttpSocket(array(
 			'timeout' => $this->timeout
 		));
@@ -160,7 +160,7 @@ class CheckoutComponent extends Component {
 			),
 			'body' => array_merge($this->__config, $this->__data, $this->__shipping)
 		));
-		return $this->__response($return);
+		return $this->__response($return, $autoRedirect);
 	}
 
 	/**
@@ -169,11 +169,16 @@ class CheckoutComponent extends Component {
 	 * @param String $res
 	 * @return array
 	 */
-	private function __response($res) {
+	private function __response($res, $autoRedirect) {
 		$response = Xml::toArray(Xml::build($res['body']));
 		
 		if (isset($response['checkout'])) {
-			$this->Controller->redirect($this->__redirect . $response['checkout']['code']);
+			
+			if($autoRedirect) {
+				$this->Controller->redirect($this->__redirect . $response['checkout']['code']);
+			}
+			
+			$response['redirectTo'] = $this->__redirect . $response['checkout']['code'];
 		}
 		
 		return $response;
