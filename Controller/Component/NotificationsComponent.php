@@ -79,11 +79,11 @@ class NotificationsComponent extends Component {
 	public function isNotification() {
 		return (
 			$this->Controller->request->is('post') &&
-			strpos($request->referer(), 'pagseguro.uol.com.br') !== false &&
-			isset($request->data['notificationCode']) &&
-			isset($request->data['notificationType']) &&
-			strlen($request->data['notificationCode']) == 39 &&
-			$request->data['notificationType'] == 'transaction'
+			strpos($this->Controller->request->referer(), 'pagseguro.uol.com.br') !== false &&
+			isset($this->Controller->request->data['notificationCode']) &&
+			isset($this->Controller->request->data['notificationType']) &&
+			strlen($this->Controller->request->data['notificationCode']) == 39 &&
+			$this->Controller->request->data['notificationType'] == 'transaction'
 		);
 	}
 
