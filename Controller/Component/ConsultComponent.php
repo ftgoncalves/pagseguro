@@ -18,11 +18,11 @@
 App::uses('HttpSocket', 'Network/Http');
 App::uses('Xml', 'Utility');
 
-class NotificationsComponent extends Component {
+class ConsultComponent extends Component {
 
 	public $timeout = 20;
 
-	public $pgURI = 'https://ws.pagseguro.uol.com.br/v2/transactions/notifications/';
+	public $pgURI = 'https://ws.pagseguro.uol.com.br/v2/transactions/';
 
 	/**
 	 * 
@@ -30,15 +30,7 @@ class NotificationsComponent extends Component {
 	 */
 	protected $Controller = null;
 
-	public $__config = array();
-
-	/**
-	 * Código de 39 caracteres que identifica a notificação
-	 * recebida
-	 * 
-	 * @var type string
-	 */
-	public $notificationCode = null;
+	protected $__config = array();
 	
 	/**
 	 * Construtor padrão
@@ -70,41 +62,49 @@ class NotificationsComponent extends Component {
 	}
 
 	/**
-	 * Validação de uma notificação recebida
+	 * Recupera informações de uma transação
 	 * 
 	 * @param CakeRequest $request
 	 * @return bool Valido ou não
 	*/
-	public function isNotification() {
-		return (
-			$this->Controller->request->is('post') &&
-			strpos($this->Controller->request->referer(), 'pagseguro.uol.com.br') !== false &&
-			isset($this->Controller->request->data['notificationCode']) &&
-			isset($this->Controller->request->data['notificationType']) &&
-			strlen($this->Controller->request->data['notificationCode']) == 39 &&
-			$this->Controller->request->data['notificationType'] == 'transaction'
+	public function getTransactionInfo($transactionCode) {
+		$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
+		
+		$params = array(
+			'email' => $this->__config['email'],
+			'token' => $this->__config['token']	
 		);
+
+		$response = $HttpSocket->get($this->pgURI . $transactionCode, $params);
+
+		return Xml::toArray(Xml::build($response['body']));
 	}
 
 	/**
-	 * Valida a notificação recebida e requisita da API do PagSeguro a situação de um pagamento,
-	 * converte o retorno de XML para Array e então o retorna.
+	 * Faz consulta a API do PagSeguro sobre a situação dos paramentos realizados
+	 * entre duas data.s
+	 * Converte o retorno de XML para Array e então o retorna.
+	 * 
+	 * @param DateTime $periodStart
+	 * @param DateTime $periodEnd
+	 * @param int $page
 	 * 
 	 * @return mixed array com dos dados da notificação em caso de sucesso, null em caso de falha
 	 */
-	public function getNotification() {
-		if($this->isNotification($this->Controller->request))
-		{
-			$this->notificationCode = $this->Controller->request->data['notificationCode'];
-			
-			$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
-
-			$response = $HttpSocket->get($this->pgURI . $this->notificationCode, "email={$__config['email']}&token={$__config['token']}");
+	public function getTransactions($periodStart, $periodEnd, $page = 1) {
+		$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
 		
-			return Xml::toArray(Xml::build($response['body']));
-			
-		} else
-			return null;
+		$params = array(
+			'initialDate' => $periodStart->format(DateTime::W3C),
+			'finalDate' => $periodEnd->format(DateTime::W3C),
+			'page' => $page,
+			'email' => $this->__config['email'],
+			'token' => $this->__config['token']
+		);
+
+		$response = $HttpSocket->get($this->pgURI, $params);
+
+		return Xml::toArray(Xml::build($response['body']));
 	}
 
 	/**
