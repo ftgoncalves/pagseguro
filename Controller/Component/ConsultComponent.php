@@ -22,7 +22,12 @@ class ConsultComponent extends Component {
 
 	public $timeout = 20;
 
-	public $pgURI = 'https://ws.pagseguro.uol.com.br/v2/transactions/';
+	public $pgURI = array(
+		'host' => 'ws.pagseguro.uol.com.br',
+		'path' => '/v2/transactions',
+		'scheme' => 'https',
+		'port' => '443'
+	);
 
 	/**
 	 * 
@@ -64,8 +69,8 @@ class ConsultComponent extends Component {
 	/**
 	 * Recupera informações de uma transação
 	 * 
-	 * @param CakeRequest $request
-	 * @return bool Valido ou não
+	 * @param string $transactionCode
+	 * @return mixed Array com resposta em caso de sucesso e null em caso de falha
 	*/
 	public function getTransactionInfo($transactionCode) {
 		$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
@@ -74,10 +79,16 @@ class ConsultComponent extends Component {
 			'email' => $this->__config['email'],
 			'token' => $this->__config['token']	
 		);
-
-		$response = $HttpSocket->get($this->pgURI . $transactionCode, $params);
-
-		return Xml::toArray(Xml::build($response['body']));
+		
+		$this->pgURI['path'] .= '/' . $transactionCode;
+		$response = $HttpSocket->get($this->pgURI, $params);
+		
+		
+		if(empty($response) || empty($response->body)) {
+			return null;
+		}
+		
+		return Xml::toArray(Xml::build($response->body));
 	}
 
 	/**
@@ -89,7 +100,7 @@ class ConsultComponent extends Component {
 	 * @param DateTime $periodEnd
 	 * @param int $page
 	 * 
-	 * @return mixed array com dos dados da notificação em caso de sucesso, null em caso de falha
+	 * @return mixed Array com dos dados da notificação em caso de sucesso, null em caso de falha
 	 */
 	public function getTransactions($periodStart, $periodEnd, $page = 1) {
 		$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
@@ -103,6 +114,10 @@ class ConsultComponent extends Component {
 		);
 
 		$response = $HttpSocket->get($this->pgURI, $params);
+		
+		if(empty($response) || empty($response->body)) {
+			return null;
+		}
 
 		return Xml::toArray(Xml::build($response['body']));
 	}

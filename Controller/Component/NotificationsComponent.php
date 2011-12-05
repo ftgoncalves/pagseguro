@@ -72,59 +72,61 @@ class NotificationsComponent extends Component {
 	/**
 	 * Validação de uma notificação recebida
 	 * 
-	 * @param CakeRequest $request
-	 * @return bool Valido ou não
+	 * @param CakeRequest $request Dados da requisição a ser testada
+	 * @return bool Válido ou não
 	*/
-	public function isNotification() {
-		return (
-			$this->Controller->request->is('post') &&
-			strpos($this->Controller->request->referer(), 'pagseguro.uol.com.br') !== false &&
-			isset($this->Controller->request->data['notificationCode']) &&
-			isset($this->Controller->request->data['notificationType']) &&
-			strlen($this->Controller->request->data['notificationCode']) == 39 &&
-			$this->Controller->request->data['notificationType'] == 'transaction'
-		);
+	public function isNotification($request) {
+		if(
+			$request->is('post') &&
+			strpos($request->referer(), 'pagseguro.uol.com.br') !== false &&
+			isset($request->data['notificationCode']) &&
+			isset($request->data['notificationType']) &&
+			strlen($request->data['notificationCode']) == 39 &&
+			$request->data['notificationType'] == 'transaction'
+		) {
+			$this->notificationCode = $request->data['notificationCode'];
+			
+			return true;
+		}
+		
+		return false;
 	}
 
 	/**
 	 * Valida a notificação recebida e requisita da API do PagSeguro a situação de um pagamento,
 	 * converte o retorno de XML para Array e então o retorna.
 	 * 
+	 * @param string $code Código da notificação
 	 * @return mixed array com dos dados da notificação em caso de sucesso, null em caso de falha
 	 */
-	public function getNotification() {
-		if($this->isNotification($this->Controller->request))
-		{
-			$this->notificationCode = $this->Controller->request->data['notificationCode'];
-			
-			$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
-
-			$response = $HttpSocket->get($this->pgURI . $this->notificationCode, "email={$__config['email']}&token={$__config['token']}");
+	public function getNotification($code = null) {
+		if(!empty($code) && is_string($code)) {
+			$this->notificationCode = $code;
+		}
 		
-			return Xml::toArray(Xml::build($response['body']));
-			
-		} else
-			return null;
+		$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
+
+		$response = $HttpSocket->get($this->pgURI . $this->notificationCode, "email={$__config['email']}&token={$__config['token']}");
+		
+		return Xml::toArray(Xml::build($response['body']));
 	}
 
 	/**
-	 * Valida as configurações, disparando um erro fatal quando
+	 * Valida as configurações, disparando uma exceção quando
 	 * forem inválidas.
-	 * 
-	 * @todo Substituir trigger_error por Exceções
 	 * 
 	 * @return void
 	 */
 	private function __configValidates() {
 		if (!isset($this->__config['email']))
-			trigger_error('Não foi informado o email do vendedor.', E_USER_ERROR);
+			throw new CakeException ('Não foi informado o email do vendedor.');
 		if (!isset($this->__config['token']))
-			trigger_error('Não foi informado o token.', E_USER_ERROR);
+			throw new CakeException ('Não foi informado o token.');
 		
 		// Validação de acordo com API 2.0 do PagSeguro
 		if(strlen($this->__config['email']) > 60)
-			trigger_error('Email do vendedor extrapola limite de 60 caracteres da API.', E_USER_ERROR);
+			throw new CakeException ('Email do vendedor extrapola limite de 60 caracteres da API.');
 		if(strlen($this->__config['token']) > 32)
-			trigger_error('Token extrapola limite de 32 caracteres da API.', E_USER_ERROR);
+			throw new CakeException ('Token extrapola limite de 32 caracteres da API.');
 	}
 }
