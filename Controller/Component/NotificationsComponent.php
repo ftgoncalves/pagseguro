@@ -105,7 +105,7 @@ class NotificationsComponent extends Component {
 		
 		$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
 
-		$response = $HttpSocket->get($this->pgURI . $this->notificationCode, "email={$__config['email']}&token={$__config['token']}");
+		$response = $HttpSocket->get($this->pgURI . $this->notificationCode, "email={$this->__config['email']}&token={$this->__config['token']}");
 		
 		return Xml::toArray(Xml::build($response['body']));
 	}
