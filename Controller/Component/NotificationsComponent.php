@@ -78,7 +78,6 @@ class NotificationsComponent extends Component {
 	public function isNotification($request) {
 		if(
 			$request->is('post') &&
-			strpos($request->referer(), 'pagseguro.uol.com.br') !== false &&
 			isset($request->data['notificationCode']) &&
 			isset($request->data['notificationType']) &&
 			strlen($request->data['notificationCode']) == 39 &&
