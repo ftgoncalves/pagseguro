@@ -22,7 +22,12 @@ class NotificationsComponent extends Component {
 
 	public $timeout = 20;
 
-	public $pgURI = 'https://ws.pagseguro.uol.com.br/v2/transactions/notifications/';
+	public $pgURI = array(
+		'host' => 'ws.pagseguro.uol.com.br',
+		'path' => '/v2/transactions/notifications/',
+		'scheme' => 'https',
+		'port' => '443'
+	);
 
 	/**
 	 * 
@@ -36,7 +41,7 @@ class NotificationsComponent extends Component {
 	 * Código de 39 caracteres que identifica a notificação
 	 * recebida
 	 * 
-	 * @var type string
+	 * @var string
 	 */
 	public $notificationCode = null;
 	
@@ -104,8 +109,14 @@ class NotificationsComponent extends Component {
 		}
 		
 		$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
+		
+		$this->pgURI['path'] .= '/' . $this->notificationCode;
 
-		$response = $HttpSocket->get($this->pgURI . $this->notificationCode, "email={$this->__config['email']}&token={$this->__config['token']}");
+		$response = $HttpSocket->get($this->pgURI, "email={$this->__config['email']}&token={$this->__config['token']}");
+		
+		if(empty($response['body'])) {
+			return false;
+		}
 		
 		return Xml::toArray(Xml::build($response['body']));
 	}
