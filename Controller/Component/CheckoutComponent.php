@@ -160,7 +160,11 @@ class CheckoutComponent extends Component {
 			),
 			'body' => array_merge($this->__config, $this->__data, $this->__shipping)
 		));
-		return $this->__response($return, $autoRedirect);
+		if($return->body != 'Unauthorized') {
+			return $this->__response($return, $autoRedirect);
+		} else {
+			trigger_error('Invalid E-mail / Token.', E_USER_ERROR);
+		}
 	}
 
 	/**
