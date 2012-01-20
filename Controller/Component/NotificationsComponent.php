@@ -114,7 +114,7 @@ class NotificationsComponent extends Component {
 
 		$response = $HttpSocket->get($this->pgURI, array('email' => $this->__config['email'], 'token' => $this->__config['token']));
 		
-		if(empty($response['body'])) {
+		if(empty($response['body']) || $response->body == 'Not Found') {
 			return false;
 		}
 		

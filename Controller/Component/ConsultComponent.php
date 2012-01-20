@@ -84,7 +84,7 @@ class ConsultComponent extends Component {
 		$response = $HttpSocket->get($this->pgURI, $params);
 		
 		
-		if(empty($response) || empty($response->body)) {
+		if(empty($response) || empty($response->body) || $response->body == 'Not Found') {
 			return null;
 		}
 		
@@ -115,7 +115,7 @@ class ConsultComponent extends Component {
 
 		$response = $HttpSocket->get($this->pgURI, $params);
 		
-		if(empty($response) || empty($response->body)) {
+		if(empty($response) || empty($response->body) || $response->body == 'Not Found') {
 			return null;
 		}
 
