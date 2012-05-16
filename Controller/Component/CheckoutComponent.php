@@ -3,10 +3,10 @@ App::uses('Component', 'Controller');
 App::uses('PagSeguroCheckout', 'PagSeguro.Lib');
 
 /**
- * Plugin de integração com a API do PagSeguro e CakePHP.
+ *
  *
  * PHP versions 5+
- * Copyright 2010-2011, Felipe Theodoro Gonçalves, (http://ftgoncalves.com.br)
+ * Copyright 2010-2012, Felipe Theodoro Gonçalves, (http://ftgoncalves.com.br)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
@@ -15,7 +15,7 @@ App::uses('PagSeguroCheckout', 'PagSeguro.Lib');
  * @author      Cauan Cabral
  * @link        https://github.com/ftgoncalves/pagseguro/
  * @license     MIT License (http://www.opensource.org/licenses/mit-license.php)
- * @version     2.0
+ * @version     2.1
  */
 class CheckoutComponent extends Component {
 
@@ -60,6 +60,15 @@ class CheckoutComponent extends Component {
 	 */
 	public function config($config = null) {
 		return $this->_PagSeguroCheckout->config($config);
+	}
+
+	/**
+	 * Retorna o último erro na lib
+	 *
+	 * @return string
+	 */
+	public function getErrors() {
+		return $this->_PagSeguroCheckout->lastError;
 	}
 
 	/**
@@ -126,11 +135,22 @@ class CheckoutComponent extends Component {
 	}
 
 	/**
-	 *
 	 * Finaliza a compra.
 	 * Recebe o codigo para redirecionamento ou erro.
+	 *
+	 * @param bool $autoRedirect Se o componente deve redirecionar
+	 * a aplicação automaticamente.
+	 * @return array Resposta do PagSeguro para redirecionamento
+	 * do usuário.
 	 */
 	public function finalize($autoRedirect = true) {
 		$response = $_PagSeguroCheckout->finalize();
+
+		if($autoRedirect && isset($response['redirectTo'])) {
+			$this->Controller->redirect($response['redirectTo']);
+			return;
+		}
+
+		return $response;
 	}
 }
