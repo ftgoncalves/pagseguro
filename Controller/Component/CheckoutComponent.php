@@ -1,4 +1,7 @@
 <?php
+App::uses('Component', 'Controller');
+App::uses('PagSeguroCheckout', 'PagSeguro.Lib');
+
 /**
  * Plugin de integração com a API do PagSeguro e CakePHP.
  *
@@ -14,9 +17,6 @@
  * @license     MIT License (http://www.opensource.org/licenses/mit-license.php)
  * @version     2.0
  */
-App::uses('HttpSocket', 'Network/Http');
-App::uses('Xml', 'Utility');
-
 class CheckoutComponent extends Component {
 
 	/**
@@ -26,64 +26,8 @@ class CheckoutComponent extends Component {
 	 */
 	protected $Controller = null;
 
-	/**
-	 *
-	 * Dominio do webserver do PagSeguro
-	 * @var String
-	 */
-	private $__URI = 'ws.pagseguro.uol.com.br';
+	protected $_PagSeguroCheckout = null;
 
-	/**
-	 *
-	 * Endereço do ws PagSeguro v2
-	 * @var String
-	 */
-	private $__path = '/v2/checkout/';
-
-	/**
-	 *
-	 * Charset
-	 * @var String
-	 */
-	public $charset = 'UTF-8';
-
-	/**
-	 *
-	 * Timeout do post
-	 * @var int
-	 */
-	public $timeout = 20;
-
-	/**
-	 *
-	 * Endereço para redirecionamento para o checkout do PagSeguro
-	 * @var String
-	 */
-	private $__redirect = 'https://pagseguro.uol.com.br/v2/checkout/payment.html?code=';
-
-	/**
-	 *
-	 * Atributo contendo as configurações do pagseguro
-	 * @var array
-	 */
-	public $__config = array(
-		'currency' => 'BRL'
-	);
-
-	/**
-	 *
-	 * Dados do cliente e endereço de cobrança
-	 * @var array
-	 */
-	public $__shipping = array();
-
-	/**
-	 *
-	 * atributo com os dados da compra
-	 * @var array
-	 */
-	public $__data = array();
-	
 	/**
 	 * Construtor padrão
 	 *
@@ -92,6 +36,8 @@ class CheckoutComponent extends Component {
 	 */
 	public function __construct(ComponentCollection $collection, $settings = array()) {
 		parent::__construct($collection, $settings);
+
+		$this->_PagSeguroCheckout = new PagSeguroCheckout($settings);
 	}
 
 	/**
@@ -101,124 +47,90 @@ class CheckoutComponent extends Component {
 	 */
 	public function startup(&$controller) {
 		$this->Controller =& $controller;
-
-		if ((Configure::read('PagSeguro') != false) && is_array(Configure::read('PagSeguro'))) {
-			$this->__config = array_merge($this->__config, Configure::read('PagSeguro'));
-			$this->__configValidates();
-		}
 	}
 
 	/**
+	 * Sobrescreve as configurações em tempo de execução.
+	 * Caso nenhum parâmetro seja passado, retorna as configurações
+	 * atuais.
 	 *
-	 * Força configurações em tempo de execução
 	 * @param array $config
+	 * @return mixed Array com as configurações caso não seja
+	 * passado parâmetro, nada caso contrário.
 	 */
-	public function config($config) {
-		$this->__config = array_merge($this->__config, $config);
-		$this->__configValidates();
+	public function config($config = null) {
+		return $this->_PagSeguroCheckout->config($config);
 	}
 
 	/**
+	 * Define uma referência para a transação com alguma
+	 * identificação interna da aplicação.
 	 *
-	 * Seta as informações de cobrança e id da compra
-	 * @param array $data
+	 * @param string $id
 	 */
-	public function setShipping($data) {
-		$this->__shipping = $data;
+	public function setReference($id) {
+		$this->_PagSeguroCheckout->setReference($id);
 	}
 
 	/**
+	 * Incluí item no carrinho de compras
 	 *
-	 * Seta os itens da venda
-	 * @param array $data
+	 * @param string $id		Identificação do produto no seu sistema
+	 * @param string $name		Nome do produto
+	 * @param string $amount	Valor do item
+	 * @param string $weight	Peso do item
+	 * @param integer $quantity	Quantidade
+	 *
+	 * @return void
 	 */
-	public function set($data) {
-		$this->__data = $data;
-		
-		$this->__dataValidates();
+	public function addItem($id, $name, $amount, $weight, $quantity = 1) {
+		$this->_PagSeguroCheckout->addItem($id, $name, $amount, $weight, $quantity);
 	}
-	
+
+	/**
+	 * Define o endereço de entrega
+	 *
+	 * @param string $zip			CEP
+	 * @param string $address		Endereço (Rua, por exemplo)
+	 * @param string $number		Número
+	 * @param string $completion	Complemento
+	 * @param string $neighborhood	Bairro
+	 * @param string $city			Cidade
+	 * @param string $state			Estado
+	 * @param string $country		País
+	 */
+	public function setShippingAddress($zip, $address, $number, $completion, $neighborhood, $city, $state, $country) {
+		$this->_PagSeguroCheckout->setShippingAddress($zip, $address, $number, $completion, $neighborhood, $city, $state, $country);
+	}
+
+	/**
+	 * Define os dados do cliente
+	 *
+	 * @param string $email
+	 * @param string $name
+	 * @param string $areaCode
+	 * @param string $phoneNumber
+	 */
+	public function setCustomer($email, $name, $areaCode, $phoneNumber) {
+		$this->_PagSeguroCheckout->setCustomer($email, $name, $areaCode, $phoneNumber);
+	}
+
+	/**
+	 * Define o tipo de entrega
+	 *
+	 * @param string $type
+	 * @throws PagSeguroException
+	 */
+	public function setShippingType($type) {
+		$this->_PagSeguroCheckout->setShippingType($type);
+	}
+
 	/**
 	 *
 	 * Finaliza a compra.
 	 * Recebe o codigo para redirecionamento ou erro.
 	 */
-	public function finalize($autoRedirect = false) {
-		$HttpSocket = new HttpSocket(array(
-			'timeout' => $this->timeout
-		));
-
-		$return = $HttpSocket->request(array(
-			'method' => 'POST',
-			'uri' => array(
-				'scheme' => 'https',
-				'host' => $this->__URI,
-				'path' => $this->__path
-			),
-			'header' => array(
-				'Content-Type' => "application/x-www-form-urlencoded; charset={$this->charset}"
-			),
-			'body' => array_merge($this->__config, $this->__data, $this->__shipping)
-		));
-		if($return->body != 'Unauthorized') {
-			return $this->__response($return, $autoRedirect);
-		} else {
-			trigger_error('Invalid E-mail / Token.', E_USER_ERROR);
-		}
-	}
-
-	/**
-	 *
-	 * Recebe o Xml com os dados redirecionamento ou erros. Iniciando o redirecionamento
-	 * @param String $res
-	 * @return array
-	 */
-	private function __response($res, $autoRedirect) {
-		$response = Xml::toArray(Xml::build($res['body']));
-		
-		if (isset($response['checkout'])) {
-			
-			if($autoRedirect) {
-				$this->Controller->redirect($this->__redirect . $response['checkout']['code']);
-			}
-			
-			$response['redirectTo'] = $this->__redirect . $response['checkout']['code'];
-		}
-		
-		return $response;
-	}
-
-	/**
-	 *
-	 * Valida os dados de configuração caso falhe dispara erro de PHP
-	 */
-	private function __configValidates() {
-		if (!isset($this->__config['email']))
-			trigger_error('E-mail the seller not found', E_USER_ERROR);
-		if (!isset($this->__config['token']))
-			trigger_error('Token not found', E_USER_ERROR);
-		if (!isset($this->__config['currency']))
-			trigger_error('Currency of reference not found', E_USER_ERROR);
-	}
-
-	/**
-	 *
-	 * Valida os itens da compra caso falhe dispara erro de PHP
-	 */
-	private function __dataValidates() {
-		if (empty($this->__data) && !is_array($this->__data))
-			trigger_error('Purchase data empty', E_USER_ERROR);
-
-		foreach ($this->__data as $key => $value) {
-			if (preg_match('/^([a-zA-Z]+)[0-9]{1,}$/', $key)) {
-				if (empty($value)) {
-					trigger_error('Empty value for the attribute: "' . $key . '"', E_USER_ERROR);
-					break;
-				}
-			} else {
-				trigger_error('This attribute was not identified: "' . $key . '"', E_USER_ERROR);
-				break;
-			}
-		}
+	public function finalize($autoRedirect = true) {
+		$response = $_PagSeguroCheckout->finalize();
 	}
 }
