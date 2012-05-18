@@ -1,5 +1,4 @@
 <?php
-App::uses('Controller', 'Controller');
 App::uses('PagSeguro', 'PagSeguro.Lib');
 class PagSeguroTestCase extends CakeTestCase {
 

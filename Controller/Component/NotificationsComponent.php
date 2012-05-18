@@ -7,7 +7,7 @@ App::uses('PagSeguroNotification', 'PagSeguro.Lib');
  * junto à controllers.
  *
  * PHP versions 5+
- * Copyright 2010-2011, Felipe Theodoro Gonçalves, (http://ftgoncalves.com.br)
+ * Copyright 2010-2012, Felipe Theodoro Gonçalves, (http://ftgoncalves.com.br)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
