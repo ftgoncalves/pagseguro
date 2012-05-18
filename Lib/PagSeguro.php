@@ -62,13 +62,14 @@ class PagSeguro {
 	}
 
 	/**
-	 * Envia os dados para API do PagSeguro usando método POST.
+	 * Envia os dados para API do PagSeguro usando método especificado.
 	 *
 	 * @throws PagSeguroException
 	 * @param array $data
+	 * @param string $method
 	 * @return array
 	 */
-	protected function _sendData($data) {
+	protected function _sendData($data, $method = 'POST') {
 		$this->_settingsValidates();
 
 		$HttpSocket = new HttpSocket(array(
@@ -76,7 +77,7 @@ class PagSeguro {
 		));
 
 		$return = $HttpSocket->request(array(
-			'method' => 'POST',
+			'method' => $method,
 			'uri' => $this->URI,
 			'header' => array(
 				'Content-Type' => "application/x-www-form-urlencoded; charset={$this->charset}"
@@ -84,10 +85,25 @@ class PagSeguro {
 			'body' => $data
 		));
 
-		if($return->body == 'Unauthorized')
-			throw PagSeguro('O Token ou E-mail foi rejeitado pelo PagSeguro. Verifique as configurações.');
+		switch ($return->code) {
+			case 200:
+				break;
+			case 400:
+				throw new PagSeguroException('A requisição foi rejeitada pela API do PagSeguro. Verifique as configurações.');
+			case 401:
+				throw new PagSeguroException('O Token ou E-mail foi rejeitado pelo PagSeguro. Verifique as configurações.');
+			case 404:
+				throw new PagSeguroException('Recurso não encontrado. Verifique os dados enviados.');
+			default:
+				throw new PagSeguroException('Erro desconhecido com a API do PagSeguro. Verifique suas configurações.');
+		}
 
-		$response = Xml::toArray(Xml::build($return->body));
+		try {
+			$response = Xml::toArray(Xml::build($return->body));
+		}
+		catch(XmlException $e) {
+			throw new PagSeguroException('A resposta do PagSeguro não é um XML válido.');
+		}
 
 		if($this->_parseResponseErrors($response))
 			throw new PagSeguroException("Erro com os dados enviados no PagSeguro.");
@@ -132,11 +148,14 @@ class PagSeguro {
 	 * @return void
 	 */
 	protected function _settingsValidates() {
-		$fields = array('email', 'token');
+		$fields = array('email' => 60, 'token' => 32);
 
-		foreach($fields as $field) {
-			if (!isset($this->settings[$field]) || empty($this->settings[$field]))
-				throw new PagSeguroException("Erro de configuração - Atributo '{$field}' não definido.");
+		foreach($fields as $fieldName => $length) {
+			if (!isset($this->settings[$fieldName]) || empty($this->settings[$fieldName]))
+				throw new PagSeguroException("Erro de configuração - Atributo '{$fieldName}' não definido.");
+
+			if(strlen($this->settings[$fieldName]) > $length)
+				throw new PagSeguroException("Erro de configuração - Atributo '{$fieldName}' excede limite de {$length} caracteres da API.");
 		}
 	}
 }

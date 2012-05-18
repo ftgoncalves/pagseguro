@@ -95,7 +95,7 @@ class PagSeguroCheckout extends PagSeguro {
 
 		parent::__construct($settings);
 
-		$this->URI['resource'] = '/v2/checkout/';
+		$this->URI['path'] = '/v2/checkout/';
 	}
 
 	/**
@@ -204,7 +204,6 @@ class PagSeguroCheckout extends PagSeguro {
 		}
 		catch(PagSeguroException $e) {
 			$this->lastError = $e->getMessage();
-
 			return false;
 		}
 	}
@@ -218,19 +217,16 @@ class PagSeguroCheckout extends PagSeguro {
 	protected function _settingsValidates() {
 		parent::_settingsValidates();
 
-		$fields = array('currency');
-
-		foreach($fields as $field) {
-			if (!isset($this->settings[$field]) || empty($this->settings[$field]))
-				throw new PagSeguroException("Erro de configuração - Atributo '{$field}' não definido.");
-		}
+		if(!isset($this->settings['currency']) || empty($this->settings['currency']))
+			throw new PagSeguroException("Erro de configuração - Atributo 'currency' não definido.");
+		if($this->settings['currency'] !== 'BRL')
+			throw new PagSeguroException("Erro de configuração - Atributo 'currency' só aceita o valor 'BRL'.");
 	}
 
 	/**
-	 * Recebe o Xml com os dados redirecionamento ou erros.
-	 * Iniciando o redirecionamento
+	 * Recebe o XML convertido para Array com os dados de redirecionamento ou erros.
 	 *
-	 * @param String $res
+	 * @param array $data
 	 * @return array
 	 */
 	protected function _parseResponse($data) {

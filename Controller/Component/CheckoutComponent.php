@@ -3,7 +3,12 @@ App::uses('Component', 'Controller');
 App::uses('PagSeguroCheckout', 'PagSeguro.Lib');
 
 /**
+ * Wrapper para a lib PagSeguroCheckout ser usada
+ * junto à controllers.
  *
+ * Extende um pouco as funcionalidades da lib adicionando
+ * capacidade para auto-redirecionar o usuário para a página
+ * de pagamentos do PagSeguro
  *
  * PHP versions 5+
  * Copyright 2010-2012, Felipe Theodoro Gonçalves, (http://ftgoncalves.com.br)
@@ -26,6 +31,13 @@ class CheckoutComponent extends Component {
 	 */
 	protected $Controller = null;
 
+	/**
+	 * Instância da Lib PagSeguroCheckout
+	 * que é responsável por toda a iteração
+	 * com a API do PagSeguro.
+	 *
+	 * @var PagSeguroCheckout
+	 */
 	protected $_PagSeguroCheckout = null;
 
 	/**
