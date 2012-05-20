@@ -156,7 +156,7 @@ class CheckoutComponent extends Component {
 	 * do usuário.
 	 */
 	public function finalize($autoRedirect = true) {
-		$response = $_PagSeguroCheckout->finalize();
+		$response = $this->_PagSeguroCheckout->finalize();
 
 		if($autoRedirect && isset($response['redirectTo'])) {
 			$this->Controller->redirect($response['redirectTo']);
