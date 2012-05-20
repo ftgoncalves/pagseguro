@@ -96,7 +96,7 @@ class ConsultComponent extends Component {
 	 */
 	public function getTransactions($periodStart, $periodEnd, $page = 1) {
 		try {
-			return $_PagSeguroConsult->find($periodStart, $periodEnd, null, $page);
+			return $this->_PagSeguroConsult->find($periodStart, $periodEnd, null, $page);
 		}
 		catch(PagSeguroException $e) {
 			return false;
