@@ -1,6 +1,6 @@
 <?php
 App::uses('Component', 'Controller');
-App::uses('PagSeguroNotification', 'PagSeguro.Lib');
+App::uses('PagSeguroConsult', 'PagSeguro.Lib');
 
 /**
  * Plugin de integração com a API do PagSeguro e CakePHP.
@@ -47,13 +47,25 @@ class ConsultComponent extends Component {
 	}
 
 	/**
+	 * Sobrescreve as configurações em tempo de execução.
+	 * Caso nenhum parâmetro seja passado, retorna as configurações
+	 * atuais.
 	 *
-	 * Força configurações em tempo de execução
 	 * @param array $config
+	 * @return mixed Array com as configurações caso não seja
+	 * passado parâmetro, nada caso contrário.
 	 */
-	public function config($config) {
-		$this->__config = array_merge($this->__config, $config);
-		$this->__configValidates();
+	public function config($config = null) {
+		return $this->_PagSeguroConsult->config($config);
+	}
+
+	/**
+	 * Retorna o último erro na lib
+	 *
+	 * @return string
+	 */
+	public function getErrors() {
+		return $this->_PagSeguroConsult->lastError;
 	}
 
 	/**
@@ -63,22 +75,12 @@ class ConsultComponent extends Component {
 	 * @return mixed Array com resposta em caso de sucesso e null em caso de falha
 	*/
 	public function getTransactionInfo($transactionCode) {
-		$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
-
-		$params = array(
-			'email' => $this->__config['email'],
-			'token' => $this->__config['token']
-		);
-
-		$this->pgURI['path'] .= '/' . $transactionCode;
-		$response = $HttpSocket->get($this->pgURI, $params);
-
-
-		if(empty($response) || empty($response->body) || $response->body == 'Not Found') {
-			return null;
+		try{
+			return $this->_PagSeguroConsult->read($transactionCode);
 		}
-
-		return Xml::toArray(Xml::build($response->body));
+		catch(PagSeguroException $e) {
+			return false;
+		}
 	}
 
 	/**
@@ -93,82 +95,11 @@ class ConsultComponent extends Component {
 	 * @return mixed Array com dos dados da notificação em caso de sucesso, null em caso de falha
 	 */
 	public function getTransactions($periodStart, $periodEnd, $page = 1) {
-		$HttpSocket = new HttpSocket(array('timeout' => $this->timeout));
-
-		$params = array(
-			'initialDate' => $periodStart->format(DateTime::W3C),
-			'finalDate' => $periodEnd->format(DateTime::W3C),
-			'page' => $page,
-			'email' => $this->__config['email'],
-			'token' => $this->__config['token']
-		);
-
-		$response = $HttpSocket->get($this->pgURI, $params);
-
-		if(empty($response) || empty($response->body) || $response->body == 'Not Found') {
-			return null;
+		try {
+			return $_PagSeguroConsult->find($periodStart, $periodEnd, null, $page);
 		}
-
-		return Xml::toArray(Xml::build($response['body']));
-	}
-
-	/**
-	 * Valida as configurações, disparando um erro fatal quando
-	 * forem inválidas.
-	 *
-	 * @todo Substituir trigger_error por Exceções
-	 *
-	 * @return void
-	 */
-	private function __configValidates() {
-		if (!isset($this->__config['email']))
-			trigger_error('Não foi informado o email do vendedor.', E_USER_ERROR);
-		if (!isset($this->__config['token']))
-			trigger_error('Não foi informado o token.', E_USER_ERROR);
-
-		// Validação de acordo com API 2.0 do PagSeguro
-		if(strlen($this->__config['email']) > 60)
-			trigger_error('Email do vendedor extrapola limite de 60 caracteres da API.', E_USER_ERROR);
-		if(strlen($this->__config['token']) > 32)
-			trigger_error('Token extrapola limite de 32 caracteres da API.', E_USER_ERROR);
-	}
-
-
-	/**
-	 * "Decodifica" a estrutura de dados do PagSeguro para
-	 * um conjunto de transações recebidas pelo sistema
-	 *
-	 * @param array $data
-	 * @return boolean
-	 */
-	private function __historicPagSeguro($data)
-	{
-		if(!isset($data['transactionSearchResult']))
-		{
+		catch(PagSeguroException $e) {
 			return false;
 		}
-
-		$decoded = array(
-			'pages' => $data['transactionSearchResult']['totalPages'],
-			'current' => $data['transactionSearchResult']['currentPage']
-		);
-
-		$decoded['items'] = array();
-
-		foreach($data['transactionSearchResult']['transactions'] as $transaction)
-		{
-			$date = substr($transaction['date'], 0, 19);
-			$date = str_replace('T', ' ', $date);
-
-			$decoded['items'][] = array(
-				'date' => $date,
-				'transaction_code' => $transaction['code'],
-				'value' => $transaction['grossAmount'],
-				'status_code' => $transaction['status'],
-				'reference' => $transaction['reference']
-			);
-		}
-
-		return $decoded;
 	}
 }

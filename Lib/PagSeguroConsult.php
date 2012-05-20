@@ -75,9 +75,18 @@ class PagSeguroConsult extends PagSeguro {
 		if($this->settings['type'] === self::$TYPE_ABANDONED)
 			$this->URI['path'] .= 'abandoned/';
 
+		try {
+			$bg = new DateTime($begin);
+			$ed = new DateTime($end);
+		}
+		catch(Exception $e) {
+			$this->lastError = __('Data de início ou término para a consulta é inválida.');
+			return false;
+		}
+
 		$this->others = array(
-			'initialDate' => $begin,
-			'finalDate' => $end,
+			'initialDate' =>  $bg->format(DateTime::W3C),
+			'finalDate' => $ed->format(DateTime::W3C),
 			'page' => $page,
 			'maxPageResults' => $limit
 		);
@@ -154,6 +163,13 @@ class PagSeguroConsult extends PagSeguro {
 		return $decoded;
 	}
 
+	/**
+	 * Converte uma única transação em um array com
+	 * apenas os dados essenciais.
+	 *
+	 * @param array $entry Uma transação
+	 * @return array $decoded Resumo da transação
+	 */
 	private function _parseOneResponseEntry($entry) {
 		$date = substr($entry['date'], 0, 19);
 		$date = str_replace('T', ' ', $date);
