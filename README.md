@@ -37,7 +37,7 @@ Todos direitos reservados:
 Licença
 -------
 
-Licensiado sob a licença MIT, que em resumo destaca:
+Licenciado sob a licença MIT, que em resumo destaca:
 
  - O uso do plugin é livre e gratuíto, em qualquer situação
  - É livre modificação e redistribuição do código
