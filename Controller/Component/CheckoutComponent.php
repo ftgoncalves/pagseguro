@@ -96,16 +96,26 @@ class CheckoutComponent extends Component {
 	/**
 	 * Incluí item no carrinho de compras
 	 *
-	 * @param string $id		Identificação do produto no seu sistema
-	 * @param string $name		Nome do produto
-	 * @param string $amount	Valor do item
-	 * @param string $weight	Peso do item
-	 * @param integer $quantity	Quantidade
+	 * @param string  $id            Identificação do produto no seu sistema
+	 * @param string  $name          Nome do produto
+	 * @param string  $amount        Valor do item
+	 * @param integer $quantity      Quantidade
+	 * @param string  $weight        Peso do item
+	 * @param string  $shippingCost  Quantidade
 	 *
 	 * @return void
 	 */
-	public function addItem($id, $name, $amount, $weight, $quantity = 1) {
+	public function addItem($id, $name, $amount, $quantity = 1, $weight = 0, $shippingCost = null) {
 		$this->_PagSeguroCheckout->addItem($id, $name, $amount, $weight, $quantity);
+	}
+
+	/**
+	 * Método alternativo para incluir um item como um array
+	 *
+	 * @param array $item
+	 */
+	public function setItem($item) {
+		$this->_PagSeguroCheckout->setItem($item);
 	}
 
 	/**
