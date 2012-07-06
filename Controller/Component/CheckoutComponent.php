@@ -106,6 +106,8 @@ class CheckoutComponent extends Component {
 	 */
 	public function addItem($id, $name, $amount, $weight, $quantity = 1) {
 		$this->_PagSeguroCheckout->addItem($id, $name, $amount, $weight, $quantity);
+
+		return $this;
 	}
 
 	/**
@@ -122,6 +124,8 @@ class CheckoutComponent extends Component {
 	 */
 	public function setShippingAddress($zip, $address, $number, $completion, $neighborhood, $city, $state, $country) {
 		$this->_PagSeguroCheckout->setShippingAddress($zip, $address, $number, $completion, $neighborhood, $city, $state, $country);
+
+		return $this;
 	}
 
 	/**
@@ -132,8 +136,10 @@ class CheckoutComponent extends Component {
 	 * @param string $areaCode
 	 * @param string $phoneNumber
 	 */
-	public function setCustomer($email, $name, $areaCode, $phoneNumber) {
+	public function setCustomer($email, $name, $areaCode = null, $phoneNumber = null) {
 		$this->_PagSeguroCheckout->setCustomer($email, $name, $areaCode, $phoneNumber);
+
+		return $this;
 	}
 
 	/**
@@ -144,6 +150,8 @@ class CheckoutComponent extends Component {
 	 */
 	public function setShippingType($type) {
 		$this->_PagSeguroCheckout->setShippingType($type);
+
+		return $this;
 	}
 
 	/**

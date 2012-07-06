@@ -166,13 +166,16 @@ class PagSeguroCheckout extends PagSeguro {
 	 * @param string $areaCode
 	 * @param string $phoneNumber
 	 */
-	public function setCustomer($email, $name, $areaCode, $phoneNumber) {
+	public function setCustomer($email, $name, $areaCode = null, $phoneNumber = null) {
 		$this->shippingCustomer = array(
 			'senderName'		=> $name,
-			'senderAreaCode'	=> $areaCode,
-			'senderPhone'		=> $phoneNumber,
 			'senderEmail'		=> $email
 		);
+
+		if($areaCode && $phoneNumber) {
+			$this->shippingCustomer['senderAreaCode'] = $areaCode;
+			$this->shippingCustomer['senderPhone']    = $phoneNumber;
+		}
 	}
 
 	/**
