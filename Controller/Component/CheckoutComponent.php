@@ -91,6 +91,8 @@ class CheckoutComponent extends Component {
 	 */
 	public function setReference($id) {
 		$this->_PagSeguroCheckout->setReference($id);
+
+		return $this;
 	}
 
 	/**
@@ -118,6 +120,8 @@ class CheckoutComponent extends Component {
 	 */
 	public function setItem($item) {
 		$this->_PagSeguroCheckout->setItem($item);
+
+		return $this;
 	}
 
 	/**

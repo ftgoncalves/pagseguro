@@ -194,6 +194,8 @@ class PagSeguroCheckout extends PagSeguro {
 	 * @param string $city			Cidade
 	 * @param string $state			Estado
 	 * @param string $country		País
+	 *
+	 * @return PagSeguroCheckout
 	 */
 	public function setShippingAddress($zip, $address, $number, $completion, $neighborhood, $city, $state, $country) {
 		$this->shippingAddress = array(
@@ -205,6 +207,8 @@ class PagSeguroCheckout extends PagSeguro {
 			'shippingAddressState'		=> $state,
 			'shippingAddressCountry'	=> $country
 		);
+
+		return $this;
 	}
 
 	/**
@@ -214,6 +218,8 @@ class PagSeguroCheckout extends PagSeguro {
 	 * @param string $name
 	 * @param string $areaCode
 	 * @param string $phoneNumber
+	 *
+	 * @return PagSeguroCheckout
 	 */
 	public function setCustomer($email, $name, $areaCode = null, $phoneNumber = null) {
 		$this->shippingCustomer = array(
@@ -225,6 +231,8 @@ class PagSeguroCheckout extends PagSeguro {
 			$this->shippingCustomer['senderAreaCode'] = $areaCode;
 			$this->shippingCustomer['senderPhone']    = $phoneNumber;
 		}
+
+		return $this;
 	}
 
 	/**
@@ -232,12 +240,16 @@ class PagSeguroCheckout extends PagSeguro {
 	 *
 	 * @param string $type
 	 * @throws PagSeguroException
+	 *
+	 * @return PagSeguroCheckout
 	 */
 	public function setShippingType($type) {
 		if (!isset($this->typeFreight[$type]))
 			throw new PagSeguroException("Tipo de entrega '{$type}' não suportado.");
 
 		$this->type = array('shippingType' => $this->typeFreight[$type]);
+
+		return $this;
 	}
 
 	/**

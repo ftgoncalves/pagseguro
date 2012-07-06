@@ -56,6 +56,8 @@ class PagSeguro {
 		if($config !== null) {
 			$this->settings = array_merge($this->settings, $config);
 			$this->_settingsValidates();
+
+			return $this;
 		}
 
 		return $this->settings;
