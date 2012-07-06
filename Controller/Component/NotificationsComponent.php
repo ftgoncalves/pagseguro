@@ -81,12 +81,12 @@ class NotificationsComponent extends Component {
 	/**
 	 * Requisita e retorna a notificação enviada pelo PagSeguro
 	 *
-	 * @param CakeRequest $request Objeto da requisição enviada pelo PagSeguro
+	 * @param array $data Array do objeto da requisição recebido do PagSeguro
 	 * @return mixed array com dos dados da notificação em caso de sucesso, false em caso de falha
 	 */
-	public function read(CakeRequest $request) {
+	public function read($data) {
 		try{
-			return $this->_PagSeguroNotification->read($request);
+			return $this->_PagSeguroNotification->read($data);
 		}
 		catch(PagSeguroException $e) {
 			return false;

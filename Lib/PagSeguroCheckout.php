@@ -111,27 +111,76 @@ class PagSeguroCheckout extends PagSeguro {
 	/**
 	 * Incluí item no carrinho de compras
 	 *
-	 * @param string $id		Identificação do produto no seu sistema
-	 * @param string $name		Nome do produto
-	 * @param string $amount	Valor do item
-	 * @param string $weight	Peso do item
-	 * @param integer $quantity	Quantidade
+	 * @param string $id			Identificação do produto no seu sistema
+	 * @param string $description	Nome do produto
+	 * @param string $amount		Valor do item
+	 * @param string $weight		Peso do item
+	 * @param integer $quantity		Quantidade
+	 * @param string $shippingCost	Custo da entrega
 	 *
-	 * @return void
+	 * @return PagSeguroCheckout
 	 */
-	public function addItem($id, $name, $amount, $weight, $quantity = 1) {
+	public function addItem($id, $description, $amount, $quantity = 1, $weight = 0, $shippingCost = null) {
+
+		$item = compact($id, $description, $amount, $quantity);
+
+		if(!empty($weight))
+			$item['weight'] = $weight;
+
+		if(!empty($shippingCost))
+			$item['shippingCost'] = $shippingCost;
+
+		$this->setItem($item);
+
+		return $this;
+	}
+
+	/**
+	 * Incluí um item passado como um array
+	 *
+	 * @param array $item um array contendo os seguintes indices:
+	 *  - string id OBRIGATÓRIO
+	 *  - string description OBRIGATÓRIO
+	 *  - string amount OBRIGATÓRIO
+	 *  - integer quantity OBRIGATÓRIO
+	 *  - string weight OPCIONAL
+	 *  - string shippingCost OPCIONAL
+	 *
+	 * @throws PagSeguroException
+	 *
+	 * @return PagSeguroCheckout
+	 */
+	public function setItem($item) {
+		if(!is_array($item))
+			throw new PagSeguroException("Este método recebe um array como parâmetro.");
+
+		$requireds = array('id', 'description', 'amount', 'quantity');
+
+		foreach($requireds as $field) {
+			if(!isset($item[$field]) || empty($item[$field]))
+				throw new PagSeguroException("O campo {$field} é obrigatório para inclusão de itens.");
+		}
+
+		extract($item);
 		$nextId = $this->cartCount;
 
 		$item = array(
 			"itemId{$nextId}"			=> $id,
-			"itemDescription{$nextId}"	=> $name,
+			"itemDescription{$nextId}"	=> $description,
 			"itemAmount{$nextId}"		=> str_replace(',', '', number_format($amount, 2)),
-			"itemWeight{$nextId}"		=> $weight,
 			"itemQuantity{$nextId}"		=> $quantity
 		);
 
+		if(isset($weight))
+			$item["itemWeight{$nextId}"] = $weight;
+
+		if(isset($shippingCost))
+			$item["itemShippingCost{$nextId}"] = $shippingCost;
+
 		$this->cart = array_merge($this->cart, $item);
 		$this->cartCount++;
+
+		return $this;
 	}
 
 	/**

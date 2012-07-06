@@ -183,7 +183,7 @@ class PagSeguroConsult extends PagSeguro {
 			'modified' => $entry['lastEventDate'],
 		);
 
-		if(!$isAbandoned) {
+		if($this->settings['type'] !== self::$TYPE_ABANDONED) {
 			$decoded['paymentType'] = $entry['paymentMethod']['type'];
 			$decoded['paymentCode'] = $entry['paymentMethod']['code'];
 		}

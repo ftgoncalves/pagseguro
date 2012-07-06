@@ -19,6 +19,8 @@ class CheckoutComponentTestCase extends CakeTestCase {
 	{
 		parent::setUp();
 
+		Configure::delete('PagSeguro');
+
 		$this->Controller = new Controller(null);
 
 		$this->Checkout = new CheckoutComponent($this->Controller->Components);
