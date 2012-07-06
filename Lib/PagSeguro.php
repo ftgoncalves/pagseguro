@@ -91,6 +91,8 @@ class PagSeguro {
 			case 200:
 				break;
 			case 400:
+				pr($return);
+				die();
 				throw new PagSeguroException('A requisição foi rejeitada pela API do PagSeguro. Verifique as configurações.');
 			case 401:
 				throw new PagSeguroException('O Token ou E-mail foi rejeitado pelo PagSeguro. Verifique as configurações.');
@@ -110,7 +112,7 @@ class PagSeguro {
 		if($this->_parseResponseErrors($response))
 			throw new PagSeguroException("Erro com os dados enviados no PagSeguro.");
 
-		return $this->_parseResponse($return->body);
+		return $this->_parseResponse($response);
 	}
 
 	/**

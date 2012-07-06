@@ -297,7 +297,7 @@ class PagSeguroCheckout extends PagSeguro {
 		if(!isset($data['checkout']))
 			throw new PagSeguroException("Resposta inválida do PagSeguro para Checkout.");
 
-		$data['redirectTo'] = sprinft($this->redirectTo, $data['checkout']['code']);
+		$data['redirectTo'] = sprintf($this->redirectTo, $data['checkout']['code']);
 
 		return $data;
 	}
