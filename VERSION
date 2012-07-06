@@ -2,7 +2,7 @@
  * Plugin de integração com a API do PagSeguro e CakePHP.
  *
  * PHP versions 5+
- * Copyright 2010-2011, Felipe Theodoro Gonçalves, (http://ftgoncalves.com.br)
+ * Copyright 2010-2012, Felipe Theodoro Gonçalves, (http://ftgoncalves.com.br)
  *
  * Licensed under The MIT License
  * Redistributions of files must retain the above copyright notice.
@@ -11,6 +11,6 @@
  * @author        Cauan Cabral
  * @link          https://github.com/ftgoncalves/pagseguro/
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
- * @version		  2.0
+ * @version		  2.1
  */
- VERSION 2.0
+ VERSION 2.1
