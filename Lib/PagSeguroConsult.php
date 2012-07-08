@@ -107,7 +107,7 @@ class PagSeguroConsult extends PagSeguro {
 	 * @return array
 	 */
 	protected function _prepareData() {
-		return array_merge(array('email' => $this->settings['email'], 'token' => $this->settings['token']), $this->others);
+		return array('email' => $this->settings['email'], 'token' => $this->settings['token']) + $this->others;
 	}
 
 	/**
@@ -139,11 +139,13 @@ class PagSeguroConsult extends PagSeguro {
 	 * @return array
 	 */
 	protected function _parseResponse($data) {
-		if(!isset($data['transactionSearchResult']) || !isset($data['transaction']))
+
+		if(!isset($data['transactionSearchResult']) && !isset($data['transaction']))
 			throw new PagSeguroException("Resposta inválida do PagSeguro para uma Consulta.");
 
 		if(isset($data['transaction'])) {
-			if(!$onlyBasic)
+
+			if(!$this->settings['onlyBasic'])
 				return $data['transaction'];
 
 			return $this->_parseOneResponseEntry($data['transaction']);

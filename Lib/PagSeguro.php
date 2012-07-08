@@ -78,21 +78,22 @@ class PagSeguro {
 			'timeout' => $this->timeout
 		));
 
-		$return = $HttpSocket->request(array(
-			'method' => $method,
-			'uri' => $this->URI,
-			'header' => array(
-				'Content-Type' => "application/x-www-form-urlencoded; charset={$this->charset}"
-			),
-			'body' => $data
-		));
+		if('get' === strtolower($method)) {
+			$return = $HttpSocket->get(
+				$this->URI,
+				$data
+			);
+		} else {
+			$return = $HttpSocket->post(
+				$this->URI,
+				$data
+			);
+		}
 
 		switch ($return->code) {
 			case 200:
 				break;
 			case 400:
-				pr($return);
-				die();
 				throw new PagSeguroException('A requisição foi rejeitada pela API do PagSeguro. Verifique as configurações.');
 			case 401:
 				throw new PagSeguroException('O Token ou E-mail foi rejeitado pelo PagSeguro. Verifique as configurações.');
