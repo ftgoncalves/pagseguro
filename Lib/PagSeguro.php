@@ -81,12 +81,14 @@ class PagSeguro {
 		if('get' === strtolower($method)) {
 			$return = $HttpSocket->get(
 				$this->URI,
-				$data
+				$data,
+				array('header' => array('Content-Type' => "application/x-www-form-urlencoded; {$this->charset}"))
 			);
 		} else {
 			$return = $HttpSocket->post(
 				$this->URI,
-				$data
+				$data,
+				array('header' => array('Content-Type' => "application/x-www-form-urlencoded; {$this->charset}"))
 			);
 		}
 
