@@ -21,8 +21,8 @@ class PagSeguroException extends CakeException {
 				// apenas uma string... não faz conversão
 			}
 
-			$msg = __('Erro relacionado ao PagSeguro:') . "\n" . $error;
-			CakeLog::write('error', $error);
+			$msg = $message . " (Problema relacionado ao PagSeguro)\n" . $error;
+			CakeLog::write('error', $msg);
 		}
 
 		parent::__construct($message, $code);
@@ -35,16 +35,16 @@ class PagSeguroException extends CakeException {
 	 * @param  array $error
 	 * @return string
 	 */
-	protected function _parseXmlError($error)
+	protected function _parseXmlError($errors)
 	{
-		if(!isset($response['errors']))
+		if(!isset($errors['errors']))
 			return '';
 
-		$errors = '';
-		foreach($response['errors'] as $error) {
-			$errors .= "[{$error['error']['code']}] {$error['error']['message']}\n";
+		$str = '';
+		foreach($errors['errors'] as $error) {
+			$str .= "[{$error['code']}] {$error['message']}\n";
 		}
 
-		return $errors;
+		return $str;
 	}
 }
