@@ -38,6 +38,8 @@ class PagSeguro {
 
 	public $lastError = null;
 
+	protected static $statusMap = array();
+
 	public function __construct($settings = array()) {
 
 		if(empty($settings) && Configure::read('PagSeguro') !== null) {
@@ -61,6 +63,20 @@ class PagSeguro {
 		}
 
 		return $this->settings;
+	}
+
+	/**
+	 * Retorna o nome de uma situação a partir de seu
+	 * código.
+	 *
+	 * @param  int $statusCode Código da situação (status)
+	 * @return string Nome da situação
+	 */
+	public static function getStatusName($statusCode) {
+		if(isset(self::$statusMap[$statusCode]))
+			return self::$statusMap[$statusCode];
+
+		return 'Situação inválida';
 	}
 
 	/**
