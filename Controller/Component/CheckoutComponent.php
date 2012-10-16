@@ -57,8 +57,8 @@ class CheckoutComponent extends Component {
 	 * Methodo para setar as configurações defaults do pagseguro
 	 * @param Object $controller
 	 */
-	public function startup(&$controller) {
-		$this->Controller =& $controller;
+	public function startup(Controller $controller) {
+		$this->Controller = $controller;
 	}
 
 	/**

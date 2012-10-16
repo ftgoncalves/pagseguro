@@ -52,8 +52,8 @@ class NotificationsComponent extends Component {
 	 * @param Controller &$controller
 	 * @return void
 	 */
-	public function initialize(&$controller) {
-		$this->Controller =& $controller;
+	public function initialize(Controller $controller) {
+		$this->Controller = $controller;
 	}
 
 	/**
